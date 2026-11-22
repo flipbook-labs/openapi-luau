@@ -12,20 +12,22 @@ local function toCamelCase(text: string): string
 	return pascal:sub(1, 1):lower() .. pascal:sub(2)
 end
 
--- Lists the names an operation could take, from most to least preferred.
--- Roblox's operationIds look like `Assets_CreateAsset` or
--- `Cloud_CreateTask__Using_Universes`. The part before the first `_` names the
--- service. Some operations exist in several forms that differ by path, and the
--- part after `__` says which form this is. A few ids also start with a dotted
--- namespace, as in `PublicServerBrowserService.GameInstances_GetServerList`,
--- which is dropped.
---
--- The first choice is the operationId without its service or form, so those
--- become `createAsset` and `createTask`. Next comes the operationId with its
--- form kept, as in `createTaskUsingUniverses`. Then a summary made of letters and
--- spaces, six words at most, such as "Get Place". Last is the method followed
--- by the path's fixed segments, as in `getV1AssetsBundles` for
--- `GET /v1/assets/{assetId}/bundles`.
+--[[
+	Lists the names an operation could take, from most to least preferred.
+	Roblox's operationIds look like `Assets_CreateAsset` or
+	`Cloud_CreateTask__Using_Universes`. The part before the first `_` names the
+	service. Some operations exist in several forms that differ by path, and the
+	part after `__` says which form this is. A few ids also start with a dotted
+	namespace, as in `PublicServerBrowserService.GameInstances_GetServerList`,
+	which is dropped.
+
+	The first choice is the operationId without its service or form, so those
+	become `createAsset` and `createTask`. Next comes the operationId with its
+	form kept, as in `createTaskUsingUniverses`. Then a summary made of letters and
+	spaces, six words at most, such as "Get Place". Last is the method followed
+	by the path's fixed segments, as in `getV1AssetsBundles` for
+	`GET /v1/assets/{assetId}/bundles`.
+]]
 local function listCandidates(operation: CollectedOperation): { string }
 	local candidates: { string } = {}
 	local function add(name: string?)
@@ -59,14 +61,16 @@ local function listCandidates(operation: CollectedOperation): { string }
 	return candidates
 end
 
--- Gives each operation a function name that's unique within its client. Every
--- operation starts with its preferred candidate, and only the operations whose
--- names collide move on to their next candidate, so an operation keeps its
--- short name unless another operation in the same client wants it too. Two
--- operations can still match on every candidate, such as `GET /places/{id}`
--- and `GET /places/{key}`. The earliest in the list keeps the last candidate,
--- and the rest get a number after it. Names that would shadow the generated
--- module's locals are never given out.
+--[[
+	Gives each operation a function name that's unique within its client. Every
+	operation starts with its preferred candidate, and only the operations whose
+	names collide move on to their next candidate, so an operation keeps its
+	short name unless another operation in the same client wants it too. Two
+	operations can still match on every candidate, such as `GET /places/{id}`
+	and `GET /places/{key}`. The earliest in the list keeps the last candidate,
+	and the rest get a number after it. Names that would shadow the generated
+	module's locals are never given out.
+]]
 local function nameOperations(operations: { CollectedOperation }): { Operation }
 	local candidates: { { string } } = {}
 	local maxLevel = 0

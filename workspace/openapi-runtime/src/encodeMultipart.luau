@@ -6,10 +6,12 @@ type MultipartField = types.MultipartField
 type ParamValue = types.ParamValue
 type Transport = types.Transport
 
--- Builds a `multipart/form-data` body and returns its `Content-Type` header
--- value and the body. Fields left nil are skipped. Each part is separated by a
--- random boundary string, which is regenerated until no part's content
--- contains it.
+--[[
+	Builds a `multipart/form-data` body and returns its `Content-Type` header
+	value and the body. Fields left nil are skipped. Each part is separated by a
+	random boundary string, which is regenerated until no part's content
+	contains it.
+]]
 local function encodeMultipart(fields: { MultipartField }, transport: Transport): (string, string)
 	local parts: { { headers: { string }, content: string } } = {}
 

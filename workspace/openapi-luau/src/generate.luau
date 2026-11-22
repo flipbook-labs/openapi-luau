@@ -28,10 +28,12 @@ local function sortedKeys<T>(map: { [string]: T }): { string }
 	return keys
 end
 
--- Generates a client for one tag of an OpenAPI document. The result maps file
--- names to contents: `init.luau` holds a function per operation, and
--- `types.luau` holds the component schemas those operations use. When the
--- operations use no components, `types.luau` is left out.
+--[[
+	Generates a client for one tag of an OpenAPI document. The result maps file
+	names to contents: `init.luau` holds a function per operation, and
+	`types.luau` holds the component schemas those operations use. When the
+	operations use no components, `types.luau` is left out.
+]]
 local function generate(spec: Spec, options: GenerateOptions): GeneratedFiles
 	local operations = nameOperations(collectOperations(spec, options.tag))
 	if #operations == 0 then

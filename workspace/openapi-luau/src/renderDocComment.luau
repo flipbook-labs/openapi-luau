@@ -1,8 +1,10 @@
--- Renders text as `---` doc comment lines at the given indentation, ending in
--- a newline so callers can put the commented line right after it. Whitespace
--- around the whole text and at the end of each line is dropped, so blank lines
--- stay clean, while indentation inside the text is kept for Markdown lists.
--- Empty text renders as an empty string.
+--[[
+	Renders text as `---` doc comment lines at the given indentation, ending in
+	a newline so callers can put the commented line right after it. Whitespace
+	around the whole text and at the end of each line is dropped, so blank lines
+	stay clean, while indentation inside the text is kept for Markdown lists.
+	Empty text renders as an empty string.
+]]
 local function renderDocComment(text: string?, indent: string): string
 	if text == nil or text:match("^%s*$") then
 		return ""

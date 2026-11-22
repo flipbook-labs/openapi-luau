@@ -116,10 +116,12 @@ local function renderBaseType(schema: Schema, context: TypeContext, depth: numbe
 	return "unknown", false
 end
 
--- Renders a schema as a Luau type expression. The second result says whether
--- the type is a union or intersection, which callers parenthesize before
--- combining it with another type. A nullable type already ends in `?`, so it
--- reports false and `makeOptional` leaves it alone.
+--[[
+	Renders a schema as a Luau type expression. The second result says whether
+	the type is a union or intersection, which callers parenthesize before
+	combining it with another type. A nullable type already ends in `?`, so it
+	reports false and `makeOptional` leaves it alone.
+]]
 function renderType(schema: Schema?, context: TypeContext, depth: number): (string, boolean)
 	if schema == nil then
 		return "unknown", false

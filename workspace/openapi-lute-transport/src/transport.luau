@@ -31,10 +31,12 @@ local function encodeJson(value: unknown): string
 	return json.serialize(value :: json.Value)
 end
 
--- `@std/json` decodes `null` as a `json.null` sentinel and tags each object
--- with a marker key, which would show up when iterating a decoded table.
--- Clients expect plain tables, so this turns `null` into `nil` and keeps only
--- string and number keys.
+--[[
+	`@std/json` decodes `null` as a `json.null` sentinel and tags each object
+	with a marker key, which would show up when iterating a decoded table.
+	Clients expect plain tables, so this turns `null` into `nil` and keeps only
+	string and number keys.
+]]
 local function toPlainValue(value: unknown): unknown
 	if value == (json.null :: unknown) then
 		return nil

@@ -20,11 +20,13 @@ local METHODS = table.freeze({
 	"trace",
 })
 
--- Collects the operations whose first tag is `tag`, sorted by path and then in
--- the order `METHODS` lists. Tags are the labels an OpenAPI document groups
--- operations under, such as "Assets". An operation can carry several, and its
--- first one is the group it's documented under. Generating one client per tag
--- therefore puts each operation in exactly one client.
+--[[
+	Collects the operations whose first tag is `tag`, sorted by path and then in
+	the order `METHODS` lists. Tags are the labels an OpenAPI document groups
+	operations under, such as "Assets". An operation can carry several, and its
+	first one is the group it's documented under. Generating one client per tag
+	therefore puts each operation in exactly one client.
+]]
 local function collectOperations(spec: Spec, tag: string): { CollectedOperation }
 	local operations: { CollectedOperation } = {}
 

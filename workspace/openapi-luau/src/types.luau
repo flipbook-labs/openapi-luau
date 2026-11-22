@@ -1,7 +1,9 @@
--- The parts of an OpenAPI 3.0 document the generator reads. The CLI casts the
--- decoded JSON to `Spec` without validating it, so most fields are optional and
--- checked where they're used. A parameter's `name` and `in` are required by the
--- OpenAPI spec and used as is.
+--[[
+	The parts of an OpenAPI 3.0 document the generator reads. The CLI casts the
+	decoded JSON to `Spec` without validating it, so most fields are optional and
+	checked where they're used. A parameter's `name` and `in` are required by the
+	OpenAPI spec and used as is.
+]]
 export type Schema = {
 	["$ref"]: string?,
 	type: string?,
@@ -77,12 +79,14 @@ export type Operation = {
 	name: string,
 }
 
--- Tracks component schemas while rendering. Components are the reusable
--- schemas under `components.schemas` that other schemas point to with `$ref`.
--- `typeNames` maps each component to its Luau type name, and `referenced`
--- collects the components a rendered type uses so the types module includes
--- exactly those. `typePrefix` goes in front of each type name, so code in
--- `init.luau` writes `types.Asset` while `types.luau` itself writes `Asset`.
+--[[
+	Tracks component schemas while rendering. Components are the reusable
+	schemas under `components.schemas` that other schemas point to with `$ref`.
+	`typeNames` maps each component to its Luau type name, and `referenced`
+	collects the components a rendered type uses so the types module includes
+	exactly those. `typePrefix` goes in front of each type name, so code in
+	`init.luau` writes `types.Asset` while `types.luau` itself writes `Asset`.
+]]
 export type TypeContext = {
 	spec: Spec,
 	typeNames: { [string]: string },
