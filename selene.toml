@@ -1,4 +1,0 @@
-std = "roblox+luau"
-
-[lints]
-global_usage = "allow"

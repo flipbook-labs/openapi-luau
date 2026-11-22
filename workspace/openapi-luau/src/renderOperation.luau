@@ -15,11 +15,11 @@ type RequestBody = types.RequestBody
 type Schema = types.Schema
 type TypeContext = types.TypeContext
 
-local PARAM_LOCATIONS = table.freeze({
+local PARAM_LOCATIONS: { [string]: string } = {
 	path = "pathParams",
 	query = "query",
 	header = "headers",
-} :: { [string]: string })
+}
 
 local function resolveSchema(schema: Schema?, context: TypeContext): Schema?
 	if schema and schema["$ref"] then
@@ -68,7 +68,9 @@ local function renderBody(requestBody: RequestBody, context: TypeContext, bodyAc
 			local resolved: Schema = resolveSchema(property, context) or {}
 			local encodingContentType = if encodings[name] then encodings[name].contentType else nil
 
-			local encoding, typeText, isCompound
+			local encoding: string
+			local typeText: string
+			local isCompound: boolean
 			if property.format == "binary" then
 				encoding, typeText, isCompound = "file", "runtime.File", false
 			else
@@ -89,7 +91,9 @@ local function renderBody(requestBody: RequestBody, context: TypeContext, bodyAc
 			)
 			table.insert(
 				fieldLines,
-				`\t\t\t\t\{ name = {quote(name)}, encoding = {quote(encoding)}, value = {bodyAccessor}[{quote(name)}] },`
+				`\t\t\t\t\{ name = {quote(name)}, encoding = runtime.MultipartEncoding.{toPascalCase(encoding)}, value = {bodyAccessor}[{quote(
+					name
+				)}] },`
 			)
 		end
 
@@ -130,17 +134,17 @@ local function renderResponse(operation: Operation, context: TypeContext): (stri
 
 	local _, mediaType = findJsonMediaType(content)
 	if mediaType then
-		return "json", (renderType(mediaType.schema, context, 0))
+		local returnType = renderType(mediaType.schema, context, 0)
+		return "json", returnType
 	end
 	return "text", "string"
 end
 
 -- Renders one operation as a params type and a function that sends it.
 local function renderOperation(operation: Operation, context: TypeContext): string
-	local object = operation.object
 	local paramsTypeName = toPascalCase(operation.name) .. "Params"
 
-	local parameters = object.parameters or {}
+	local parameters = operation.object.parameters or {}
 	local paramNames: { [string]: boolean } = {}
 	for _, parameter in parameters do
 		paramNames[parameter.name] = true
@@ -177,11 +181,12 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 		table.insert(groups[field], `\t\t\t{formatKey(parameter.name)} = {accessor},`)
 	end
 
-	local bodyType, bodyExpression
-	if object.requestBody then
-		local isRequired = object.requestBody.required == true
+	local bodyType: string?
+	local bodyExpression: string?
+	if operation.object.requestBody then
+		local isRequired = operation.object.requestBody.required == true
 		local bodyAccessor = `args.{bodyKey}`
-		bodyType, bodyExpression = renderBody(object.requestBody, context, bodyAccessor)
+		bodyType, bodyExpression = renderBody(operation.object.requestBody, context, bodyAccessor)
 		if bodyExpression and not isRequired then
 			bodyExpression = `if {bodyAccessor} == nil then nil else {bodyExpression}`
 		end
@@ -190,7 +195,7 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 			local fieldType = if isRequired then bodyType else makeOptional(bodyType, false)
 			table.insert(
 				typeLines,
-				renderDocComment(object.requestBody.description, "\t") .. `\t{bodyKey}: {fieldType},`
+				renderDocComment(operation.object.requestBody.description, "\t") .. `\t{bodyKey}: {fieldType},`
 			)
 		end
 	end
@@ -200,19 +205,20 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 	-- Descriptions often open by repeating the summary, so the summary is only
 	-- kept when it adds something.
 	local summaryParts: { string } = {}
-	local summary = if object.summary then object.summary:gsub("^%s+", ""):gsub("%s+$", "") else nil
-	local description = object.description
-	if summary and not (description and description:sub(1, #summary) == summary) then
+	local summary = if operation.object.summary then operation.object.summary:gsub("^%s+", ""):gsub("%s+$", "") else nil
+	local isSummaryRepeated = operation.object.description ~= nil
+		and operation.object.description:sub(1, #(summary or "")) == summary
+	if summary and not isSummaryRepeated then
 		table.insert(summaryParts, summary)
 	end
-	if description then
-		table.insert(summaryParts, description)
+	if operation.object.description then
+		table.insert(summaryParts, operation.object.description)
 	end
-	if object.deprecated then
+	if operation.object.deprecated then
 		table.insert(summaryParts, "Deprecated.")
 	end
-	if object.externalDocs and object.externalDocs.url then
-		table.insert(summaryParts, object.externalDocs.url)
+	if operation.object.externalDocs and operation.object.externalDocs.url then
+		table.insert(summaryParts, operation.object.externalDocs.url)
 	end
 	table.insert(summaryParts, `{operation.method} {operation.path}`)
 
@@ -248,7 +254,7 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 	if bodyExpression then
 		table.insert(fields, `\t\tbody = {bodyExpression},`)
 	end
-	table.insert(fields, `\t\tresponseKind = {quote(responseKind)},`)
+	table.insert(fields, `\t\tresponseKind = runtime.ResponseKind.{toPascalCase(responseKind)},`)
 
 	local call = `runtime.send(client, \{\n{table.concat(fields, "\n")}\n\t})`
 	if returnType then

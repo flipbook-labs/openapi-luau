@@ -1,6 +1,6 @@
 local quote = require("./quote")
 
-local RESERVED_WORDS = table.freeze({
+local RESERVED_WORDS: { [string]: boolean } = {
 	["and"] = true,
 	["break"] = true,
 	["do"] = true,
@@ -22,7 +22,7 @@ local RESERVED_WORDS = table.freeze({
 	["true"] = true,
 	["until"] = true,
 	["while"] = true,
-} :: { [string]: boolean })
+}
 
 -- Formats a table key for a type or constructor. A name that isn't a plain
 -- identifier, or that is a Luau keyword such as `end`, is quoted and bracketed.

@@ -12,7 +12,7 @@ Complete every step below before you write any code, tests, changelog entries, o
    rokit install && lute run install
    ```
 
-   `rokit install` puts `lute`, `luau-lsp`, `stylua`, `selene`, and `changewrite` on PATH. `lute run install` copies the dependencies into `.lpm/<key>@<rev>` folders, and code requires them through the `lpm` alias in `.config.luau`. The shared skills library is a dev dependency, so it lands in `.lpm/` for you to read but isn't bundled into the binary.
+   `rokit install` puts `lute`, `luau-lsp`, `stylua`, and `changewrite` on PATH. `lute run install` copies the dependencies into `.lpm/<key>@<rev>` folders, and code requires them through the `lpm` alias in `.config.luau`. The shared skills library is a dev dependency, so it lands in `.lpm/` for you to read but isn't bundled into the binary.
 
 2. Find the skills folder: it's `.lpm/agent-skills@<rev>`, with the `rev` pinned in [`pkg.luau`](pkg.luau). Use that path wherever `<skills>` appears below.
 
@@ -35,7 +35,7 @@ When your work here contradicts a skill, fix it in the agent-skills repo with a 
 
 ## Repo specifics
 
-- `lute run --list` shows the scripts: `install`, `analyze` (StyLua and luau-lsp checks), and `build` (compile the `openapi-luau` binary into `build/`). Run the tests with `lute test`. Tests are `*.spec.luau` files beside the code they cover.
+- `lute run --list` shows the scripts: `install`, `lint` (StyLua and [Code Quality](https://github.com/flipbook-labs/code-quality)'s lint rules), `analyze` (luau-lsp type checks), and `build` (compile the `openapi-luau` binary into `build/`). Run the tests with `lute test`. Tests are `*.spec.luau` files beside the code they cover.
 - The repository is a Lute package workspace. The root [`pkg.luau`](pkg.luau) has no name or version, and each folder under `workspace/` is a member with its own `pkg.luau`:
   - [`openapi-luau`](workspace/openapi-luau) is the generator. Its CLI entry point is [`cli.luau`](workspace/openapi-luau/cli.luau), and [`src/generate.luau`](workspace/openapi-luau/src/generate.luau) turns a document and a tag into `init.luau` and `types.luau`.
   - [`openapi-runtime`](workspace/openapi-runtime) is what generated clients call into. It builds requests and leaves HTTP and JSON to a transport, so it uses no runtime-specific APIs.

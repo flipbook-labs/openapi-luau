@@ -57,11 +57,10 @@ local function renderObject(schema: Schema, context: TypeContext, depth: number)
 		table.insert(lines, renderDocComment(property.description, indent) .. `{indent}{formatKey(name)}: {typeText},`)
 	end
 
-	local additional = schema.additionalProperties
-	if typeof(additional) == "table" then
-		local text = renderType(additional :: Schema, context, depth + 1)
+	if typeof(schema.additionalProperties) == "table" then
+		local text = renderType(schema.additionalProperties :: Schema, context, depth + 1)
 		table.insert(lines, `{indent}[string]: {text},`)
-	elseif additional == true or #names == 0 then
+	elseif schema.additionalProperties == true or #names == 0 then
 		table.insert(lines, `{indent}[string]: unknown,`)
 	end
 
@@ -89,10 +88,9 @@ local function renderBaseType(schema: Schema, context: TypeContext, depth: numbe
 		return renderJoined(schema.anyOf, "|", context, depth)
 	end
 
-	local enum = schema.enum
-	if enum and schema.type == "string" and #enum > 0 then
+	if schema.enum and schema.type == "string" and #schema.enum > 0 then
 		local values: { string } = {}
-		for _, value in enum do
+		for _, value in schema.enum do
 			if typeof(value) == "string" then
 				table.insert(values, quote(value))
 			end
@@ -102,17 +100,16 @@ local function renderBaseType(schema: Schema, context: TypeContext, depth: numbe
 		end
 	end
 
-	local schemaType = schema.type
-	if schemaType == "string" then
+	if schema.type == "string" then
 		return "string", false
-	elseif schemaType == "integer" or schemaType == "number" then
+	elseif schema.type == "integer" or schema.type == "number" then
 		return "number", false
-	elseif schemaType == "boolean" then
+	elseif schema.type == "boolean" then
 		return "boolean", false
-	elseif schemaType == "array" then
+	elseif schema.type == "array" then
 		local itemText = renderType(schema.items, context, depth)
 		return `\{ {itemText} }`, false
-	elseif schemaType == "object" or schema.properties or schema.additionalProperties ~= nil then
+	elseif schema.type == "object" or schema.properties or schema.additionalProperties ~= nil then
 		return renderObject(schema, context, depth), false
 	end
 

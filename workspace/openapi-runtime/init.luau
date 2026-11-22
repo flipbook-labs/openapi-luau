@@ -10,7 +10,9 @@ export type File = types.File
 export type HttpError = types.HttpError
 export type HttpRequest = types.HttpRequest
 export type HttpResponse = types.HttpResponse
+export type MultipartEncoding = types.MultipartEncoding
 export type Operation = types.Operation
+export type ResponseKind = types.ResponseKind
 export type Transport = types.Transport
 
 local function createClient(options: ClientOptions): Client
@@ -22,6 +24,8 @@ local function createClient(options: ClientOptions): Client
 end
 
 return {
+	MultipartEncoding = types.MultipartEncoding,
+	ResponseKind = types.ResponseKind,
 	createClient = createClient,
 	send = send,
 }

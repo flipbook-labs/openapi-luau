@@ -44,6 +44,15 @@ export type File = {
 
 export type MultipartEncoding = "json" | "file" | "text"
 
+-- How `send` writes a multipart field: `Json` encodes a value as JSON, `File`
+-- sends a `File`'s content with its filename, and `Text` sends a string,
+-- number, or boolean as text.
+local MultipartEncoding = table.freeze({
+	Json = "json" :: "json",
+	File = "file" :: "file",
+	Text = "text" :: "text",
+})
+
 export type MultipartField = {
 	name: string,
 	encoding: MultipartEncoding,
@@ -68,6 +77,14 @@ export type RequestBody =
 
 export type ResponseKind = "json" | "text" | "none"
 
+-- How `send` reads a response body: `Json` decodes it, `Text` returns it as a
+-- string, and `None` ignores it.
+local ResponseKind = table.freeze({
+	Json = "json" :: "json",
+	Text = "text" :: "text",
+	None = "none" :: "none",
+})
+
 export type Operation = {
 	method: string,
 	path: string,
@@ -85,4 +102,7 @@ export type HttpError = {
 	body: string,
 }
 
-return nil
+return {
+	MultipartEncoding = MultipartEncoding,
+	ResponseKind = ResponseKind,
+}

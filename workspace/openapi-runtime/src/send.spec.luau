@@ -29,7 +29,9 @@ local function createRecordingClient(response: HttpResponse): (Client, { HttpReq
 			end,
 			decodeJson = function(text)
 				local digits = assert(text:match("(%d+)"))
-				return { assetId = tonumber(digits) }
+				return {
+					assetId = tonumber(digits),
+				}
 			end,
 		},
 	}

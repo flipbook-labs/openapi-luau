@@ -7,7 +7,8 @@ OpenApiLuau uses [Rokit](https://github.com/rojo-rbx/rokit) for toolchain manage
 ```sh
 rokit install
 lute run install   # vendor dependencies into .lpm/
-lute run analyze   # run the StyLua and luau-lsp checks
+lute run lint      # check formatting with StyLua and lint with Code Quality
+lute run analyze   # type check with luau-lsp
 lute run build     # compile the openapi-luau binary into build/
 lute test          # run the *.spec.luau test suite
 ```

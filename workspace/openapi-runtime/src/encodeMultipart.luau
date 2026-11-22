@@ -18,7 +18,7 @@ local function encodeMultipart(fields: { MultipartField }, transport: Transport)
 			continue
 		end
 
-		if field.encoding == "file" then
+		if field.encoding == types.MultipartEncoding.File then
 			local file = field.value :: File
 			table.insert(parts, {
 				headers = {
@@ -27,7 +27,7 @@ local function encodeMultipart(fields: { MultipartField }, transport: Transport)
 				},
 				content = file.content,
 			})
-		elseif field.encoding == "json" then
+		elseif field.encoding == types.MultipartEncoding.Json then
 			table.insert(parts, {
 				headers = {
 					`Content-Disposition: form-data; name="{field.name}"`,
@@ -45,7 +45,7 @@ local function encodeMultipart(fields: { MultipartField }, transport: Transport)
 		end
 	end
 
-	local boundary
+	local boundary: string
 	repeat
 		boundary = string.format("openapi-luau-%08x%08x", math.random(0, 0x7fffffff), math.random(0, 0x7fffffff))
 		local isUnique = true

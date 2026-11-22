@@ -7,7 +7,10 @@
 -- require them too. `dev_dependencies` here holds what no member needs, like
 -- the agent-skills library that agents read.
 local function member(name: string)
-	return { sourceKind = "path", source = `./workspace/{name}` }
+	return {
+		sourceKind = "path",
+		source = `./workspace/{name}`,
+	}
 end
 
 return {
@@ -22,6 +25,11 @@ return {
 				rev = "v0.7.0",
 				sourceKind = "github",
 				source = "https://github.com/flipbook-labs/agent-skills",
+			},
+			["code-quality"] = {
+				rev = "v0.7.0",
+				sourceKind = "github",
+				source = "https://github.com/flipbook-labs/code-quality",
 			},
 			["flipbook-batteries"] = {
 				rev = "v0.13.1",

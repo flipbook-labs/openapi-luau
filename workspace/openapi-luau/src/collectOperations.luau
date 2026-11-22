@@ -9,7 +9,16 @@ export type CollectedOperation = {
 	object: OperationObject,
 }
 
-local METHODS = table.freeze({ "get", "put", "post", "delete", "options", "head", "patch", "trace" })
+local METHODS = table.freeze({
+	"get",
+	"put",
+	"post",
+	"delete",
+	"options",
+	"head",
+	"patch",
+	"trace",
+})
 
 -- Collects the operations whose first tag is `tag`, sorted by path and then in
 -- the order `METHODS` lists. Tags are the labels an OpenAPI document groups

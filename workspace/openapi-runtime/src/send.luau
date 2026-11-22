@@ -27,18 +27,17 @@ local function send(client: Client, operation: Operation): unknown
 	end
 
 	local body: string? = nil
-	local requestBody = operation.body
-	if requestBody then
-		if requestBody.kind == "json" then
-			headers["Content-Type"] = requestBody.contentType
-			body = client.transport.encodeJson(requestBody.value)
-		elseif requestBody.kind == "multipart" then
-			local contentType, content = encodeMultipart(requestBody.fields, client.transport)
+	if operation.body then
+		if operation.body.kind == "json" then
+			headers["Content-Type"] = operation.body.contentType
+			body = client.transport.encodeJson(operation.body.value)
+		elseif operation.body.kind == "multipart" then
+			local contentType, content = encodeMultipart(operation.body.fields, client.transport)
 			headers["Content-Type"] = contentType
 			body = content
 		else
-			headers["Content-Type"] = requestBody.contentType
-			body = requestBody.content
+			headers["Content-Type"] = operation.body.contentType
+			body = operation.body.content
 		end
 	end
 
@@ -59,9 +58,9 @@ local function send(client: Client, operation: Operation): unknown
 		error(setmetatable(err, HttpErrorMetatable), 0)
 	end
 
-	if operation.responseKind == "none" then
+	if operation.responseKind == types.ResponseKind.None then
 		return nil
-	elseif operation.responseKind == "text" then
+	elseif operation.responseKind == types.ResponseKind.Text then
 		return response.body
 	end
 

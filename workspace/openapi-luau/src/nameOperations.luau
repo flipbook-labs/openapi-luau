@@ -34,9 +34,8 @@ local function listCandidates(operation: CollectedOperation): { string }
 		end
 	end
 
-	local operationId = operation.object.operationId
-	if operationId then
-		local unqualified = operationId:match("([^%.]+)$") or operationId
+	if operation.object.operationId then
+		local unqualified = operation.object.operationId:match("([^%.]+)$") or operation.object.operationId
 		local base, suffix = unqualified:match("^(.-)__(.+)$")
 		base = base or unqualified
 		base = base:match("^%w+_(.+)$") or base
@@ -46,9 +45,8 @@ local function listCandidates(operation: CollectedOperation): { string }
 		end
 	end
 
-	local summary = operation.object.summary
-	if summary then
-		local trimmed = summary:gsub("^%s+", ""):gsub("%.?%s*$", "")
+	if operation.object.summary then
+		local trimmed = operation.object.summary:gsub("^%s+", ""):gsub("%.?%s*$", "")
 		local wordCount = select(2, trimmed:gsub("%S+", ""))
 		if trimmed:match("^[%a ]+$") and wordCount <= MAX_SUMMARY_WORDS then
 			add(toCamelCase(trimmed))
