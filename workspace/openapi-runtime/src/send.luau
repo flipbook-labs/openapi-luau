@@ -1,0 +1,75 @@
+local buildUrl = require("./buildUrl")
+local encodeMultipart = require("./encodeMultipart")
+local formatParam = require("./formatParam")
+local types = require("./types")
+
+type Client = types.Client
+type HttpError = types.HttpError
+type Operation = types.Operation
+
+local HttpErrorMetatable = {
+	__tostring = function(err: HttpError)
+		return `{err.status} from {err.method} {err.url}: {err.body}`
+	end,
+}
+
+-- Sends one operation through the client's transport. A response outside the
+-- 2xx range raises an `HttpError`, which carries the status so callers can
+-- handle specific failures.
+local function send(client: Client, operation: Operation): unknown
+	local url = buildUrl(client.baseUrl, operation.path, operation.pathParams, operation.query)
+
+	local headers = table.clone(client.headers)
+	if operation.headers then
+		for name, value in operation.headers do
+			headers[name] = formatParam(value)
+		end
+	end
+
+	local body: string? = nil
+	local requestBody = operation.body
+	if requestBody then
+		if requestBody.kind == "json" then
+			headers["Content-Type"] = requestBody.contentType
+			body = client.transport.encodeJson(requestBody.value)
+		elseif requestBody.kind == "multipart" then
+			local contentType, content = encodeMultipart(requestBody.fields, client.transport)
+			headers["Content-Type"] = contentType
+			body = content
+		else
+			headers["Content-Type"] = requestBody.contentType
+			body = requestBody.content
+		end
+	end
+
+	local response = client.transport.request({
+		url = url,
+		method = operation.method,
+		headers = headers,
+		body = body,
+	})
+
+	if response.status < 200 or response.status >= 300 then
+		local err: HttpError = {
+			method = operation.method,
+			url = url,
+			status = response.status,
+			body = response.body,
+		}
+		error(setmetatable(err, HttpErrorMetatable), 0)
+	end
+
+	if operation.responseKind == "none" then
+		return nil
+	elseif operation.responseKind == "text" then
+		return response.body
+	end
+
+	if response.body:match("^%s*$") then
+		return nil
+	end
+
+	return client.transport.decodeJson(response.body)
+end
+
+return send
