@@ -1,3 +1,5 @@
-# `lute pkg install` writes the lockfile, so GitHub collapses its diff in pull
-# requests and leaves it out of language stats.
+# Tools write these files rather than people, so GitHub collapses their diffs
+# in pull requests and leaves them out of language stats. `lute pkg install`
+# writes the lockfile, and `changewrite generate` writes the changelog chips.
 pkg.lock.luau linguist-generated=true
+.changes/assets/** linguist-generated=true

@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos
+            runner: macos-latest
+            zip_name: openapi-luau-macos-arm64.zip
+          - os: linux
+            runner: ubuntu-latest
+            zip_name: openapi-luau-linux-x86_64.zip
+          - os: windows
+            runner: windows-latest
+            zip_name: openapi-luau-windows-x86_64.zip
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: CompeyDev/setup-rokit@1d9390883f7ebce19d48f5b8d006e11d387c92ab # v0.2.1
+        with:
+          version: v1.2.0
+
+      - name: Install dependencies
+        run: lute run install
+
+      - name: Build openapi-luau
+        run: lute run build
+
+      # Windows runners ship 7-Zip but not zip, so the Windows build uses 7-Zip
+      # rather than installing zip from Chocolatey's feed at build time.
+      - name: Package binary
+        if: matrix.os != 'windows'
+        run: zip -j "${{ matrix.zip_name }}" build/openapi-luau
+
+      - name: Package binary (Windows)
+        if: matrix.os == 'windows'
+        working-directory: build
+        run: 7z a -tzip "../${{ matrix.zip_name }}" openapi-luau.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.zip_name }}
+          path: ${{ matrix.zip_name }}
