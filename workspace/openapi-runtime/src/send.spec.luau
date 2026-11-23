@@ -133,4 +133,22 @@ test.suite("send", function(suite)
 
 		assert.eq(requests[1].headers.Cookie, "region=7; session=a%20b")
 	end)
+
+	suite:case("adds cookie parameters to the client's Cookie header", function(assert)
+		local client, requests = createRecordingClient({ status = 200, headers = {}, body = "" })
+		client.headers.cookie = "session=abc; region=1"
+
+		send(client, {
+			method = "GET",
+			path = "/session",
+			cookies = {
+				region = 7,
+				theme = "dark",
+			},
+			responseKind = "none",
+		})
+
+		assert.eq(requests[1].headers.cookie, nil)
+		assert.eq(requests[1].headers.Cookie, "session=abc; region=7; theme=dark")
+	end)
 end)

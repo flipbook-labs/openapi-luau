@@ -28,23 +28,55 @@ local function send(client: Client, operation: Operation): unknown
 		end
 	end
 
-	-- Cookie parameters share one `Cookie` header, sorted so the same call
-	-- always sends the same header. Values are percent-encoded because a
-	-- cookie value can't hold spaces, commas, or semicolons.
-	if operation.cookies then
+	--[[
+		Cookie parameters go in the `Cookie` header, alongside any cookies the
+		client's headers already send, such as a session. A parameter replaces a
+		client cookie with the same name and keeps its place. New ones follow in
+		sorted order, so the same call always sends the same header. Values are
+		percent-encoded because a cookie value can't hold spaces, commas, or
+		semicolons. HTTP header names ignore case, so a client's `cookie` header
+		is merged too and sent as `Cookie`.
+	]]
+	if operation.cookies and next(operation.cookies) then
+		local cookies: { { name: string, value: string } } = {}
+		for headerName, headerValue in table.clone(headers) do
+			if headerName:lower() == "cookie" then
+				headers[headerName] = nil
+				for pair in headerValue:gmatch("[^;]+") do
+					local name, value = pair:match("^%s*([^=]-)%s*=%s*(.-)%s*$")
+					if name and value then
+						table.insert(cookies, { name = name, value = value })
+					end
+				end
+			end
+		end
+
 		local names: { string } = {}
 		for name in operation.cookies do
 			table.insert(names, name)
 		end
 		table.sort(names)
 
-		local cookies: { string } = {}
 		for _, name in names do
-			table.insert(cookies, `{name}={percentEncode(formatParam(operation.cookies[name] :: ParamValue))}`)
+			local value = percentEncode(formatParam(operation.cookies[name] :: ParamValue))
+			local existing: { name: string, value: string }? = nil
+			for _, cookie in cookies do
+				if cookie.name == name then
+					existing = cookie
+				end
+			end
+			if existing then
+				existing.value = value
+			else
+				table.insert(cookies, { name = name, value = value })
+			end
 		end
-		if #cookies > 0 then
-			headers.Cookie = table.concat(cookies, "; ")
+
+		local pairsList: { string } = {}
+		for _, cookie in cookies do
+			table.insert(pairsList, `{cookie.name}={cookie.value}`)
 		end
+		headers.Cookie = table.concat(pairsList, "; ")
 	end
 
 	local body: string? = nil
