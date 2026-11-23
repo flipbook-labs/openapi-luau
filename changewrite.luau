@@ -1,11 +1,9 @@
 return {
 	categories = { "Features", "Fixes", "Changes", "Dependencies" },
 	version = {
-		current = "0.0.0",
+		current = "0.1.0",
 		mirror = {
-			{ file = "workspace/openapi-luau/pkg.luau" },
-			{ file = "workspace/openapi-runtime/pkg.luau" },
-			{ file = "workspace/openapi-lute-transport/pkg.luau" },
+			{ file = "pkg.luau" },
 			{ file = "README.md", pattern = 'target = "workspace/openapi%-runtime",%s+rev = "v([%d%.]+)"' },
 			{ file = "README.md", pattern = 'target = "workspace/openapi%-lute%-transport",%s+rev = "v([%d%.]+)"' },
 			{ file = "README.md", pattern = '%-%-runtime "@lpm/openapi%-runtime@v([%d%.]+)"' },
