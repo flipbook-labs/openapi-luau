@@ -45,7 +45,7 @@ end
 	OpenAPI's `style` and `explode` say how an array goes on the wire. By
 	default a query array repeats its key, as in `ids=1&ids=2`, which `send`
 	does itself. Headers, and query or cookie parameters with `explode` set to
-	false, join the values with commas instead, which `runtime.formatList`
+	false, join the values with commas instead, which `OpenApiRuntime.formatList`
 	does. Anything else is rejected so a client never sends it wrong: objects,
 	styles other than the default such as `pipeDelimited`, path arrays, and
 	cookie arrays that repeat their name.
@@ -75,7 +75,7 @@ local function renderParamValue(parameter: Parameter, accessor: string, context:
 	elseif location == "path" or (location == "cookie" and explode) then
 		error(`{label} is an array sent as {style}, which isn't supported`, 0)
 	end
-	return `runtime.formatList({accessor})`
+	return `OpenApiRuntime.formatList({accessor})`
 end
 
 --[[
@@ -122,7 +122,7 @@ local function renderBody(
 			local typeText: string
 			local isCompound: boolean
 			if resolved.format == "binary" then
-				encoding, typeText, isCompound = "file", "runtime.File", false
+				encoding, typeText, isCompound = "file", "OpenApiRuntime.File", false
 			else
 				typeText, isCompound = renderType(property, context, 2)
 				local isStructured = resolved.type == "object"
@@ -156,7 +156,7 @@ local function renderBody(
 			)
 			table.insert(
 				fieldLines,
-				`\t\t\t\t\{ name = {quote(name)}, encoding = runtime.MultipartEncoding.{toPascalCase(encoding)},{contentTypeField} value = {bodyAccessor}[{quote(
+				`\t\t\t\t\{ name = {quote(name)}, encoding = OpenApiRuntime.MultipartEncoding.{toPascalCase(encoding)},{contentTypeField} value = {bodyAccessor}[{quote(
 					name
 				)}] },`
 			)
@@ -318,7 +318,7 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 
 	table.insert(chunks, renderDocComment(table.concat(summaryParts, "\n\n"), ""))
 
-	local signature = "client: runtime.Client"
+	local signature = "client: OpenApiRuntime.Client"
 	if hasParams then
 		signature ..= if hasRequired then `, args: {paramsTypeName}` else `, params: {paramsTypeName}?`
 	end
@@ -342,9 +342,9 @@ local function renderOperation(operation: Operation, context: TypeContext): stri
 	if bodyExpression then
 		table.insert(fields, `\t\tbody = {bodyExpression},`)
 	end
-	table.insert(fields, `\t\tresponseKind = runtime.ResponseKind.{toPascalCase(responseKind)},`)
+	table.insert(fields, `\t\tresponseKind = OpenApiRuntime.ResponseKind.{toPascalCase(responseKind)},`)
 
-	local call = `runtime.send(client, \{\n{table.concat(fields, "\n")}\n\t})`
+	local call = `OpenApiRuntime.send(client, \{\n{table.concat(fields, "\n")}\n\t})`
 	if returnType then
 		table.insert(chunks, `\treturn {call} :: {returnType}\n`)
 	else

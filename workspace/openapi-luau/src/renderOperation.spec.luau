@@ -51,7 +51,7 @@ test.suite("renderOperation", function(suite)
 	suite:case("reads `required` from a referenced request body", function(assert)
 		local text = render({ requestBody = { ["$ref"] = "#/components/requestBodies/CreateAsset" } })
 
-		assert.eq(contains(text, "local function run(client: runtime.Client, args: RunParams)"), true)
+		assert.eq(contains(text, "local function run(client: OpenApiRuntime.Client, args: RunParams)"), true)
 		assert.eq(contains(text, "\tbody: types.Asset,"), true)
 	end)
 
@@ -59,7 +59,7 @@ test.suite("renderOperation", function(suite)
 		local text = render({ responses = { ["200"] = { ["$ref"] = "#/components/responses/AssetResponse" } } })
 
 		assert.eq(contains(text, "): types.Asset\n"), true)
-		assert.eq(contains(text, "responseKind = runtime.ResponseKind.Json,"), true)
+		assert.eq(contains(text, "responseKind = OpenApiRuntime.ResponseKind.Json,"), true)
 	end)
 
 	suite:case("groups an optional compound body type", function(assert)
@@ -104,18 +104,18 @@ test.suite("renderOperation", function(suite)
 			},
 		})
 
-		assert.eq(contains(text, "\t\tfile: runtime.File?,"), true)
+		assert.eq(contains(text, "\t\tfile: OpenApiRuntime.File?,"), true)
 		assert.eq(
 			contains(
 				text,
-				'{ name = "metadata", encoding = runtime.MultipartEncoding.Text, contentType = "text/csv", value = args.body["metadata"] },'
+				'{ name = "metadata", encoding = OpenApiRuntime.MultipartEncoding.Text, contentType = "text/csv", value = args.body["metadata"] },'
 			),
 			true
 		)
 		assert.eq(
 			contains(
 				text,
-				'{ name = "request", encoding = runtime.MultipartEncoding.Json, contentType = "application/vnd.roblox+json", value = args.body["request"] },'
+				'{ name = "request", encoding = OpenApiRuntime.MultipartEncoding.Json, contentType = "application/vnd.roblox+json", value = args.body["request"] },'
 			),
 			true
 		)
@@ -156,9 +156,9 @@ test.suite("renderOperation", function(suite)
 			},
 		})
 
-		assert.eq(contains(text, "\t\t\tids = runtime.formatList(args.ids),"), true)
+		assert.eq(contains(text, "\t\t\tids = OpenApiRuntime.formatList(args.ids),"), true)
 		assert.eq(contains(text, "\t\t\ttags = args.tags,"), true)
-		assert.eq(contains(text, '\t\t\t["X-Ids"] = runtime.formatList(args["X-Ids"]),'), true)
+		assert.eq(contains(text, '\t\t\t["X-Ids"] = OpenApiRuntime.formatList(args["X-Ids"]),'), true)
 	end)
 
 	suite:case("sends cookie parameters as cookies", function(assert)

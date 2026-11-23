@@ -1,14 +1,14 @@
-local cliParser = require("@lpm/batteries@v1.0.1-nightly.20261115/cli")
+local cli = require("@lpm/batteries@v1.0.1-nightly.20261115/cli")
 local fs = require("@std/fs")
 local path = require("@std/path")
 local process = require("@std/process")
 
-local luteTransport = require("@workspace/openapi-lute-transport")
+local OpenApiLuteTransport = require("@workspace/openapi-lute-transport")
 
 local generate = require("./src/generate")
 local types = require("./src/types")
 
-local parser = cliParser.parser()
+local parser = cli.parser()
 parser:add("spec", "positional", { help = "Path to an OpenAPI 3 document in JSON" })
 parser:add("tag", "option", { help = "Generate the operations whose first tag is this" })
 parser:add("out", "option", { help = "Folder to write init.luau and types.luau into" })
@@ -37,7 +37,7 @@ local function main(args: { string }): number
 		return 1
 	end
 
-	local spec = luteTransport.decodeJson(fs.readFileToString(specPath)) :: types.Spec
+	local spec = OpenApiLuteTransport.decodeJson(fs.readFileToString(specPath)) :: types.Spec
 	local files = generate(spec, {
 		tag = tag,
 		runtimeRequire = runtimeRequire,

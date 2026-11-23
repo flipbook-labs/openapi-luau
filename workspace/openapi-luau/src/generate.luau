@@ -94,12 +94,12 @@ local function generate(spec: Spec, options: GenerateOptions): GeneratedFiles
 	local clientChunks: { string } = {
 		header,
 		"\n",
-		`local runtime = require({quote(options.runtimeRequire)})\n`,
+		`local OpenApiRuntime = require({quote(options.runtimeRequire)})\n`,
 	}
 	if #reexports > 0 then
 		table.insert(clientChunks, `local types = require("@self/types")\n`)
 	end
-	table.insert(clientChunks, "\nexport type Client = runtime.Client\n")
+	table.insert(clientChunks, "\nexport type Client = OpenApiRuntime.Client\n")
 	for _, line in reexports do
 		table.insert(clientChunks, line)
 	end

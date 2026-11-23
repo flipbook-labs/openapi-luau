@@ -66,13 +66,13 @@ test.suite("nameOperations", function(suite)
 		)
 	end)
 
-	suite:case("skips names that would shadow the generated module's locals", function(assert)
+	suite:case("skips a name that would shadow the generated module's types local", function(assert)
 		assert.eq(
 			names({
 				{ method = "GET", path = "/runtime", object = { operationId = "Service_Runtime" } },
 				{ method = "GET", path = "/types", object = { summary = "Types" } },
 			}),
-			{ "getRuntime", "getTypes" }
+			{ "runtime", "getTypes" }
 		)
 	end)
 

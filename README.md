@@ -46,14 +46,14 @@ Then create a client and call an operation. This one runs a script in a Roblox p
 ```luau
 local process = require("@std/process")
 
-local runtime = require("@lpm/openapi-runtime@v0.1.0")
-local transport = require("@lpm/openapi-lute-transport@v0.1.0")
+local OpenApiLuteTransport = require("@lpm/openapi-lute-transport@v0.1.0")
+local OpenApiRuntime = require("@lpm/openapi-runtime@v0.1.0")
 
 local luauExecution = require("./luau-execution")
 
-local client = runtime.createClient({
+local client = OpenApiRuntime.createClient({
 	baseUrl = "https://apis.roblox.com",
-	transport = transport,
+	transport = OpenApiLuteTransport,
 	headers = {
 		["x-api-key"] = process.env.ROBLOX_API_KEY,
 	},
@@ -84,7 +84,7 @@ local ok, err = pcall(places.getPlace, client, {
 	placeId = "9876543210",
 })
 
-if not ok and (err :: runtime.HttpError).status == 404 then
+if not ok and (err :: OpenApiRuntime.HttpError).status == 404 then
 	print("That place doesn't exist")
 end
 ```

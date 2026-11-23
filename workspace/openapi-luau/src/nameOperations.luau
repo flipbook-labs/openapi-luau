@@ -84,10 +84,9 @@ local function nameOperations(operations: { CollectedOperation }): { Operation }
 	end
 
 	local names: { [number]: string } = {}
-	-- The generated module keeps the runtime and types modules in these locals,
-	-- so a function with either name would shadow them.
+	-- The generated module keeps its types module in this local, so a function
+	-- with the same name would shadow it.
 	local isTaken: { [string]: boolean } = {
-		runtime = true,
 		types = true,
 	}
 
