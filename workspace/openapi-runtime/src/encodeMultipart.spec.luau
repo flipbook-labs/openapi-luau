@@ -53,4 +53,51 @@ test.suite("encodeMultipart", function(suite)
 		}, "\r\n")
 		assert.eq(body, expected)
 	end)
+
+	suite:case("escapes quotes and backslashes in names and filenames", function(assert)
+		local _, body = encodeMultipart({
+			{
+				name = 'say "hi"',
+				encoding = "file",
+				value = { filename = [[C:\a "b".txt]], contentType = "text/plain", content = "x" },
+			},
+		}, transport)
+
+		assert.neq(body:find([[name="say \"hi\""; filename="C:\\a \"b\".txt"]], 1, true), nil)
+	end)
+
+	suite:case("throws on a line break in a part header", function(assert)
+		assert.throwsWith("multipart field name can't contain a line break", function()
+			encodeMultipart({ { name = "a\r\nX-Injected: 1", encoding = "text", value = "x" } }, transport)
+		end)
+		assert.throwsWith("multipart filename can't contain a line break", function()
+			encodeMultipart({
+				{
+					name = "file",
+					encoding = "file",
+					value = { filename = "a\nb", contentType = "text/plain", content = "x" },
+				},
+			}, transport)
+		end)
+	end)
+
+	suite:case("writes a part's declared content type", function(assert)
+		local _, body = encodeMultipart({
+			{
+				name = "request",
+				encoding = "json",
+				contentType = "application/vnd.roblox+json",
+				value = { displayName = "Sword" },
+			},
+			{
+				name = "csv",
+				encoding = "text",
+				contentType = "text/csv",
+				value = "a,b",
+			},
+		}, transport)
+
+		assert.neq(body:find('name="request"\r\nContent-Type: application/vnd.roblox+json\r\n', 1, true), nil)
+		assert.neq(body:find('name="csv"\r\nContent-Type: text/csv\r\n', 1, true), nil)
+	end)
 end)

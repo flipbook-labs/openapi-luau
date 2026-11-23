@@ -1,6 +1,7 @@
 -- Generated clients call into this package to send each operation. It builds
 -- the request and reads the response, and leaves HTTP and JSON to the
 -- transport a client is given.
+local formatList = require("@self/src/formatList")
 local send = require("@self/src/send")
 local types = require("@self/src/types")
 
@@ -27,5 +28,6 @@ return {
 	MultipartEncoding = types.MultipartEncoding,
 	ResponseKind = types.ResponseKind,
 	createClient = createClient,
+	formatList = formatList,
 	send = send,
 }

@@ -1,4 +1,5 @@
 local collectOperations = require("./collectOperations")
+local isIdentifier = require("./isIdentifier")
 local toPascalCase = require("./toPascalCase")
 local types = require("./types")
 
@@ -26,12 +27,15 @@ end
 	form kept, as in `createTaskUsingUniverses`. Then a summary made of letters and
 	spaces, six words at most, such as "Get Place". Last is the method followed
 	by the path's fixed segments, as in `getV1AssetsBundles` for
-	`GET /v1/assets/{assetId}/bundles`.
+	`GET /v1/assets/{assetId}/bundles`. A candidate that isn't a valid Luau
+	identifier, such as `end` or one starting with a digit, is left out. The
+	last candidate is the lowercase method followed by letters and digits, so
+	it's always valid and every operation keeps at least one.
 ]]
 local function listCandidates(operation: CollectedOperation): { string }
 	local candidates: { string } = {}
 	local function add(name: string?)
-		if name and name ~= "" and not table.find(candidates, name) then
+		if name and isIdentifier(name) and not table.find(candidates, name) then
 			table.insert(candidates, name)
 		end
 	end

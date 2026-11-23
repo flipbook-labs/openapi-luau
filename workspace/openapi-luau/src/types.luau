@@ -2,7 +2,7 @@
 	The parts of an OpenAPI 3.0 document the generator reads. The CLI casts the
 	decoded JSON to `Spec` without validating it, so most fields are optional and
 	checked where they're used. A parameter's `name` and `in` are required by the
-	OpenAPI spec and used as is.
+	OpenAPI spec and used as is, once any `$ref` is resolved.
 ]]
 export type Schema = {
 	["$ref"]: string?,
@@ -21,9 +21,12 @@ export type Schema = {
 }
 
 export type Parameter = {
+	["$ref"]: string?,
 	name: string,
 	["in"]: string,
 	required: boolean?,
+	style: string?,
+	explode: boolean?,
 	description: string?,
 	schema: Schema?,
 }
@@ -45,6 +48,7 @@ export type RequestBody = {
 }
 
 export type Response = {
+	["$ref"]: string?,
 	description: string?,
 	content: { [string]: MediaType }?,
 }
@@ -61,13 +65,20 @@ export type OperationObject = {
 	externalDocs: { url: string? }?,
 }
 
+-- A path's operations, keyed by method, plus `parameters` shared by all of
+-- them. Luau can't type a table whose `parameters` key differs from the rest,
+-- so `collectOperations` reads `parameters` through a cast.
+export type PathItem = { [string]: OperationObject }
+
 export type Spec = {
 	openapi: string?,
 	info: { title: string?, version: string? }?,
-	paths: { [string]: { [string]: OperationObject } }?,
+	paths: { [string]: PathItem }?,
 	components: {
 		schemas: { [string]: Schema }?,
 		requestBodies: { [string]: RequestBody }?,
+		parameters: { [string]: Parameter }?,
+		responses: { [string]: Response }?,
 	}?,
 }
 

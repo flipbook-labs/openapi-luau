@@ -85,4 +85,14 @@ test.suite("nameOperations", function(suite)
 			{ "getItems", "getItems2" }
 		)
 	end)
+
+	suite:case("skips candidates that aren't valid identifiers", function(assert)
+		assert.eq(
+			names({
+				{ method = "POST", path = "/sessions/end", object = { summary = "End" } },
+				{ method = "GET", path = "/codes", object = { operationId = "Auth_2FACodes" } },
+			}),
+			{ "postSessionsEnd", "getCodes" }
+		)
+	end)
 end)

@@ -1,11 +1,13 @@
 local buildUrl = require("./buildUrl")
 local encodeMultipart = require("./encodeMultipart")
 local formatParam = require("./formatParam")
+local percentEncode = require("./percentEncode")
 local types = require("./types")
 
 type Client = types.Client
 type HttpError = types.HttpError
 type Operation = types.Operation
+type ParamValue = types.ParamValue
 
 local HttpErrorMetatable = {
 	__tostring = function(err: HttpError)
@@ -23,6 +25,25 @@ local function send(client: Client, operation: Operation): unknown
 	if operation.headers then
 		for name, value in operation.headers do
 			headers[name] = formatParam(value)
+		end
+	end
+
+	-- Cookie parameters share one `Cookie` header, sorted so the same call
+	-- always sends the same header. Values are percent-encoded because a
+	-- cookie value can't hold spaces, commas, or semicolons.
+	if operation.cookies then
+		local names: { string } = {}
+		for name in operation.cookies do
+			table.insert(names, name)
+		end
+		table.sort(names)
+
+		local cookies: { string } = {}
+		for _, name in names do
+			table.insert(cookies, `{name}={percentEncode(formatParam(operation.cookies[name] :: ParamValue))}`)
+		end
+		if #cookies > 0 then
+			headers.Cookie = table.concat(cookies, "; ")
 		end
 	end
 

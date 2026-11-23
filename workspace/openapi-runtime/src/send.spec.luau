@@ -116,4 +116,21 @@ test.suite("send", function(suite)
 		assert.eq(httpError.body, "locked")
 		assert.eq(tostring(err), "409 from POST https://apis.example.com/places/1/versions: locked")
 	end)
+
+	suite:case("sends cookie parameters in one Cookie header", function(assert)
+		local client, requests = createRecordingClient({ status = 200, headers = {}, body = "" })
+
+		send(client, {
+			method = "GET",
+			path = "/session",
+			cookies = {
+				session = "a b",
+				region = 7,
+				unused = nil,
+			},
+			responseKind = "none",
+		})
+
+		assert.eq(requests[1].headers.Cookie, "region=7; session=a%20b")
+	end)
 end)

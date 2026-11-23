@@ -53,9 +53,12 @@ local MultipartEncoding = table.freeze({
 	Text = "text" :: "text",
 })
 
+-- `contentType` is the part's declared media type. A `File` part uses the
+-- file's own `contentType` instead.
 export type MultipartField = {
 	name: string,
 	encoding: MultipartEncoding,
+	contentType: string?,
 	value: unknown,
 }
 
@@ -91,6 +94,7 @@ export type Operation = {
 	pathParams: { [string]: ParamValue }?,
 	query: { [string]: QueryValue? }?,
 	headers: { [string]: ParamValue? }?,
+	cookies: { [string]: ParamValue? }?,
 	body: RequestBody?,
 	responseKind: ResponseKind,
 }

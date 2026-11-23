@@ -8,8 +8,9 @@ type QueryValue = types.QueryValue
 --[[
 	Fills each `{name}` in the path template and appends the query string. Query
 	keys are sorted so the same call always builds the same URL. An array value
-	always repeats its key once per item, as in `ids=1&ids=2`. That's the
-	OpenAPI default for query arrays, and the only array style supported.
+	repeats its key once per item, as in `ids=1&ids=2`, which is OpenAPI's
+	default for query arrays. Generated clients join arrays that use another
+	style into a string with `formatList` before they get here.
 ]]
 local function buildUrl(
 	baseUrl: string,

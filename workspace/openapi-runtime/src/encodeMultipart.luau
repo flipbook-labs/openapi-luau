@@ -7,6 +7,29 @@ type ParamValue = types.ParamValue
 type Transport = types.Transport
 
 --[[
+	Part headers come from field names, filenames, and content types the caller
+	passes in. A line break in one would end the header early and let the rest
+	of the value write headers of its own, so this function and
+	`quoteHeaderValue` reject it rather than send it.
+]]
+local function checkContentType(contentType: string): string
+	if contentType:find("[\r\n]") then
+		error("multipart content type can't contain a line break", 0)
+	end
+	return contentType
+end
+
+-- Quotes a field name or filename for `Content-Disposition`, escaping its
+-- quotes and backslashes and rejecting line breaks.
+local function quoteHeaderValue(value: string, label: string): string
+	if value:find("[\r\n]") then
+		error(`multipart {label} can't contain a line break`, 0)
+	end
+	local escaped = value:gsub('[\\"]', "\\%0")
+	return `"{escaped}"`
+end
+
+--[[
 	Builds a `multipart/form-data` body and returns its `Content-Type` header
 	value and the body. Fields left nil are skipped. Each part is separated by a
 	random boundary string, which is regenerated until no part's content
@@ -20,28 +43,31 @@ local function encodeMultipart(fields: { MultipartField }, transport: Transport)
 			continue
 		end
 
+		local disposition = `Content-Disposition: form-data; name={quoteHeaderValue(field.name, "field name")}`
 		if field.encoding == types.MultipartEncoding.File then
 			local file = field.value :: File
 			table.insert(parts, {
 				headers = {
-					`Content-Disposition: form-data; name="{field.name}"; filename="{file.filename}"`,
-					`Content-Type: {file.contentType}`,
+					`{disposition}; filename={quoteHeaderValue(file.filename, "filename")}`,
+					`Content-Type: {checkContentType(file.contentType)}`,
 				},
 				content = file.content,
 			})
 		elseif field.encoding == types.MultipartEncoding.Json then
 			table.insert(parts, {
 				headers = {
-					`Content-Disposition: form-data; name="{field.name}"`,
-					"Content-Type: application/json",
+					disposition,
+					`Content-Type: {checkContentType(field.contentType or "application/json")}`,
 				},
 				content = transport.encodeJson(field.value),
 			})
 		else
+			local headers = { disposition }
+			if field.contentType then
+				table.insert(headers, `Content-Type: {checkContentType(field.contentType)}`)
+			end
 			table.insert(parts, {
-				headers = {
-					`Content-Disposition: form-data; name="{field.name}"`,
-				},
+				headers = headers,
 				content = formatParam(field.value :: ParamValue),
 			})
 		end

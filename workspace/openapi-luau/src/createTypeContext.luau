@@ -4,10 +4,16 @@ local types = require("./types")
 type Spec = types.Spec
 type TypeContext = types.TypeContext
 
--- Gives every component schema a Luau type name. Names come from the whole
--- component name, so `AssetsUploadApi.Asset` becomes `AssetsUploadApiAsset`,
--- and later components in sorted order get a numeric suffix on a clash.
-local function createTypeContext(spec: Spec, typePrefix: string): TypeContext
+--[[
+	Gives every component schema a Luau type name. Names come from the whole
+	component name, so `AssetsUploadApi.Asset` becomes `AssetsUploadApiAsset`,
+	and later components in sorted order get a numeric suffix on a clash.
+
+	The client module re-exports these types beside types of its own, such as
+	`Client` and each operation's params type. `reservedNames` lists those, so a
+	component that would take one gets a suffix instead.
+]]
+local function createTypeContext(spec: Spec, typePrefix: string, reservedNames: { string }?): TypeContext
 	local componentNames: { string } = {}
 	local schemas = if spec.components then spec.components.schemas else nil
 	for name in schemas or {} do
@@ -17,6 +23,9 @@ local function createTypeContext(spec: Spec, typePrefix: string): TypeContext
 
 	local typeNames: { [string]: string } = {}
 	local isTaken: { [string]: boolean } = {}
+	for _, name in reservedNames or {} do
+		isTaken[name] = true
+	end
 	for _, name in componentNames do
 		local base = toPascalCase(name)
 		if base == "" or base:match("^%d") then
