@@ -76,11 +76,11 @@ jobs:
           # exist. Full history guarantees it (the default depth-1 checkout does not).
           fetch-depth: 0
 
-      - uses: flipbook-labs/changewrite@v0.15.0
+      - uses: flipbook-labs/changewrite@v0.16.0
         with:
           require-entry: 'true'
 
-      - uses: flipbook-labs/changewrite/publish-lock@v0.15.0
+      - uses: flipbook-labs/changewrite/publish-lock@v0.16.0
         if: github.head_ref != 'publish-next-version'
         with:
           locked: false
