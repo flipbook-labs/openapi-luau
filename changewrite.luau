@@ -2,7 +2,7 @@ return {
 	categories = { "Features", "Fixes", "Changes", "Dependencies", "Internal" },
 	collapsed = { "Internal" },
 	version = {
-		current = "0.1.0",
+		current = "0.1.1",
 		mirror = {
 			{ file = "pkg.luau" },
 			{ file = "README.md", pattern = 'target = "workspace/openapi%-runtime",%s+rev = "v([%d%.]+)"' },
