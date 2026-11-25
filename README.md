@@ -20,13 +20,13 @@ dependencies = {
 		sourceKind = "github",
 		source = "https://github.com/flipbook-labs/openapi-luau",
 		target = "workspace/openapi-runtime",
-		rev = "v0.1.0",
+		rev = "v0.1.1",
 	},
 	["openapi-lute-transport"] = {
 		sourceKind = "github",
 		source = "https://github.com/flipbook-labs/openapi-luau",
 		target = "workspace/openapi-lute-transport",
-		rev = "v0.1.0",
+		rev = "v0.1.1",
 	},
 },
 ```
@@ -36,7 +36,7 @@ dependencies = {
 Generate a client from one tag of a document. An operation can carry several tags, and its first tag decides which client it lands in. `--runtime` is the require path the generated code uses to load `openapi-runtime`.
 
 ```sh
-openapi-luau openapi.json --tag "Luau Execution" --out src/luau-execution --runtime "@lpm/openapi-runtime@v0.1.0"
+openapi-luau openapi.json --tag "Luau Execution" --out src/luau-execution --runtime "@lpm/openapi-runtime@v0.1.1"
 ```
 
 The folder gets an `init.luau` with the operations and a `types.luau` with the schemas. Run StyLua over it afterward to wrap long lines.
@@ -46,8 +46,8 @@ Then create a client and call an operation. This one runs a script in a Roblox p
 ```luau
 local process = require("@std/process")
 
-local OpenApiLuteTransport = require("@lpm/openapi-lute-transport@v0.1.0")
-local OpenApiRuntime = require("@lpm/openapi-runtime@v0.1.0")
+local OpenApiLuteTransport = require("@lpm/openapi-lute-transport@v0.1.1")
+local OpenApiRuntime = require("@lpm/openapi-runtime@v0.1.1")
 
 local luauExecution = require("./luau-execution")
 
